@@ -65,11 +65,11 @@ class _UserProfileState extends State<UserProfile> {
     imgFile = await picker.pickImage(source: ImageSource.gallery);
     if (imgFile != null) {
       img = await imgFile!.readAsBytes();
-      setState(() {
-        bits = base64Encode(io.File(imgFile!.path).readAsBytesSync());
-      });
+      
+     
       String userId = await Utils.getUserId();
 
+        bits = base64Encode(io.File(imgFile!.path).readAsBytesSync());
       String res = await _imageService.updateProfile(img: bits, userId: userId);
       profileImage();
 
@@ -90,8 +90,8 @@ class _UserProfileState extends State<UserProfile> {
 
     if (user.image.isNotEmptyAndNotNull) {
       userimage = base64Decode(user.image!);
-      setState(() {});
     }
+      setState(() {});
   }
 
   @override
@@ -137,7 +137,7 @@ class _UserProfileState extends State<UserProfile> {
                           child: (user.name != null) ?  ClipRRect(
                               borderRadius: BorderRadius.circular(500),
                               child: (img != null)
-                                  ? Image.memory(img!)
+                                  ? Image.memory(img! , fit: BoxFit.cover,)
                                   : (userimage != null)
                                       ? Image.memory(userimage!, fit: BoxFit.cover,)
                                       : Image.network(
