@@ -19,9 +19,11 @@ class UserChatTile extends StatelessWidget {
   final String index;
   final String lastTime;
   final String? img;
+  
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       height: 80,
@@ -97,7 +99,7 @@ class UserChatTile extends StatelessWidget {
                             Text(
                               lastTime,
                               style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white.withOpacity(0.7)),
                             ),

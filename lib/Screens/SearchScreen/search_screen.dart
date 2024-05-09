@@ -5,11 +5,9 @@ import 'package:chat_app_with_backend/Bloc/all_user_cubit/all_user_cubit.dart';
 import 'package:chat_app_with_backend/Bloc/all_user_cubit/all_user_state.dart';
 import 'package:chat_app_with_backend/Screens/ChatScreen/chat_screen.dart';
 import 'package:chat_app_with_backend/Screens/HomeScreen/Common/user_chat_tile.dart';
-import 'package:chat_app_with_backend/Socket%20connection/socket.dart';
 import 'package:chat_app_with_backend/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 
 class SearchScreen extends StatefulWidget {
   SearchScreen({super.key});
@@ -19,11 +17,11 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   late String userId = '';
-  
+
   @override
   void initState() {
-    Socket.socket.connect();
     getId();
+
     super.initState();
   }
 
@@ -65,7 +63,6 @@ class _SearchScreenState extends State<SearchScreen> {
             );
           }
           if (state is AllUserLoadedState) {
-          
             return ListView.builder(
               itemCount: state.users.length,
               itemBuilder: (context, index) {
@@ -82,6 +79,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (_) => ChatScreen(
+                                    setMessage: () => {},
                                     recipientId: recipientId,
                                     name: state.users[index].name!,
                                   )));
@@ -91,7 +89,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       index: index.toString(),
                       isUserChat: false,
                       username: state.users[index].name,
-         
                     ),
                   ),
                 );
