@@ -5,14 +5,14 @@ import 'package:chat_app_with_backend/Services/message_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GetMessageCubit extends Cubit<GetMessageState> {
-  GetMessageCubit() : super(MessagesInitialState());
+  GetMessageCubit() : super(MessagesLoadingState());
 
   static final MessageService _messageService = MessageService();
 
   Future<List<MessageModel>?> getMessages({required String recipientId}) async {
     try {
-      emit(MessagesLoadingState());
       List<MessageModel>? messages =
+      
           await _messageService.fetchMessages(recipientId: recipientId);
 
       if (messages != null) {
