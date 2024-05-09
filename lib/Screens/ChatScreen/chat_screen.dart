@@ -15,12 +15,14 @@ class ChatScreen extends StatefulWidget {
   const ChatScreen({
     super.key,
     required this.recipientId,
-    required this.name, 
+    required this.name,
     this.isActive,
+    required this.setMessage,
   });
   final bool? isActive;
   final String recipientId;
   final String name;
+  final VoidCallback setMessage;
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
@@ -36,7 +38,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
-    Socket.socket.connect();
     getId();
     fetchMessage();
     getMessageFromSocket();
@@ -47,12 +48,12 @@ class _ChatScreenState extends State<ChatScreen> {
   getMessageFromSocket() {
     Socket.socket.on('getMessageEvent', (res) {
       Map<String, dynamic> data = res;
-      if (data.isNotEmpty) {
+      if (data.isNotEmpty && data['senderId'] == widget.recipientId) {
         if (mounted) {
-          setState(() {
-            messages.add(TextMessages.fromJson(data));
-            scrollToLastItem();
-          });
+          widget.setMessage();
+          messages.add(TextMessages.fromJson(data));
+          setState(() {});
+          scrollToLastItem();
         }
       }
     });
@@ -63,12 +64,22 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendMessage(String text) {
+    widget.setMessage();
     if (text.isNotEmpty) {
       Map data = {
         "message": text,
         "senderId": userId,
         "recipientId": widget.recipientId
       };
+
+      TextMessages txt = TextMessages(text: text, senderId: userId);
+
+      if (mounted) {
+        messages.add(txt);
+        setState(() {});
+        scrollToLastItem();
+      }
+
       Socket.socket.emit('sendMessageEvent', data);
     }
   }
@@ -104,13 +115,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    Socket.socket.off('sendMessage');
     _messageController.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    Vx.log(widget.isActive);
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -127,23 +138,22 @@ class _ChatScreenState extends State<ChatScreen> {
               widget.name,
               style: TextStyle(color: Colors.white),
             ),
-            (widget.isActive != null) ?Text(
-               "active",
-              style: TextStyle(color: Colors.green, fontSize: 14),
-            ):
-            Text(
-               "Inactive",
-              style: TextStyle(color: Colors.purple, fontSize: 14),
-            ),
+            (widget.isActive!)
+                ? Text(
+                    "Online",
+                    style: TextStyle(color: Colors.green, fontSize: 14),
+                  )
+                : Text(
+                    "Offline",
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
           ],
         ),
         actions: [
           PopupMenuButton<int>(
             iconColor: Colors.white,
             onSelected: (th) {
-              if (th == 0) {
-               
-              }
+              if (th == 0) {}
             },
             color: Colors.white,
             itemBuilder: (context) => const [
