@@ -3,17 +3,30 @@ import 'package:chat_app_with_backend/Screens/HomeScreen/HomeScreen.dart';
 import 'package:chat_app_with_backend/Screens/SearchScreen/search_screen.dart';
 import 'package:chat_app_with_backend/Screens/Setting_screen.dart';
 import 'package:chat_app_with_backend/Screens/User%20Profile/user_profile.dart';
+import 'package:chat_app_with_backend/Socket%20connection/socket.dart';
 import 'package:chat_app_with_backend/Utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
-class BottomNavbar extends StatelessWidget {
+class BottomNavbar extends StatefulWidget {
   BottomNavbar({super.key});
+
+  @override
+  State<BottomNavbar> createState() => _BottomNavbarState();
+}
+
+class _BottomNavbarState extends State<BottomNavbar> {
   final PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
 
-  void _handleLogout(BuildContext context) async{
+  @override
+  void initState() {
+    Socket.socket.connect();
+    super.initState();
+  }
+
+  void _handleLogout(BuildContext context) async {
     await Utils.removeToken();
     await Utils.removeUser();
 
@@ -30,9 +43,7 @@ class BottomNavbar extends StatelessWidget {
         context: context,
       ),
       SearchScreen(),
-      HomeScreen(
-        context: context,
-      ),
+    
       const SettingScreen(),
       UserProfile(),
     ];
@@ -53,11 +64,7 @@ class BottomNavbar extends StatelessWidget {
         activeColorPrimary: Colors.purpleAccent,
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
-      PersistentBottomNavBarItem(
-        icon: const Icon(CupertinoIcons.add_circled),
-        activeColorPrimary: Colors.purpleAccent,
-        inactiveColorPrimary: CupertinoColors.systemGrey,
-      ),
+   
       PersistentBottomNavBarItem(
         icon: const Icon(CupertinoIcons.bell_fill),
         activeColorPrimary: Colors.purpleAccent,
@@ -69,6 +76,13 @@ class BottomNavbar extends StatelessWidget {
         inactiveColorPrimary: CupertinoColors.systemGrey,
       ),
     ];
+  }
+
+  @override
+  void dispose() {
+    Socket.socket.disconnect();
+    Socket.socket.dispose();
+    super.dispose();
   }
 
   @override
