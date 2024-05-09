@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:chat_app_with_backend/Bloc/Get_user_message/get_message_cubit.dart';
 import 'package:chat_app_with_backend/Bloc/user_chat_cubit/user_chat_cubit.dart';
 import 'package:chat_app_with_backend/Bloc/user_chat_cubit/user_chat_state.dart';
 import 'package:chat_app_with_backend/Models/message_model.dart';
 import 'package:chat_app_with_backend/Models/user_model.dart';
+import 'package:chat_app_with_backend/Models/user_tile_model.dart';
 import 'package:chat_app_with_backend/Screens/AuthScreen/login_screen.dart';
 import 'package:chat_app_with_backend/Screens/ChatScreen/chat_screen.dart';
 import 'package:chat_app_with_backend/Screens/HomeScreen/Common/user_chat_tile.dart';
@@ -34,10 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> lastMessage = [];
   List<String> lastTime = [];
 
+  List<UserTileModel> usersTiles = [];
 
   @override
   void initState() {
-    Socket.socket.connect();
     addNewUser();
     super.initState();
     setLastMessage();
@@ -56,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _logoutUser() {
     Socket.socket.disconnect();
+    Socket.socket.dispose();
     Navigator.pushAndRemoveUntil(
         widget.context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -65,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _chatCubit.close();
-    addNewUser();
     super.dispose();
   }
 
@@ -80,45 +83,37 @@ class _HomeScreenState extends State<HomeScreen> {
       for (UserModel recipientUser in recipientUsers) {
         List<MessageModel>? messages =
             await _messageService.fetchMessages(recipientId: recipientUser.id!);
-
         if (messages != null && messages.isNotEmpty) {
-          setLastTime(messages.last.createdAt.toString());
+          lastTime.add(messages.last.createdAt.toString());
           lastMessage.add(messages.last.text!.toString());
         } else {
           lastMessage.add("Start");
-          setLastTime(" - - ");
         }
       }
+
       setState(() {});
     }
   }
 
-  void setLastTime(String time) {
-    String timeis = '';
-    String timeString = time;
-    DateTime givenTime = DateTime.parse(timeString);
-    DateTime currentTime = DateTime.now();
+  setUserList(List<UserModel> users) {
+    usersTiles = [];
 
-    Duration difference = currentTime.difference(givenTime);
+    if (lastMessage.length == users.length) {
+      for (int index = 0; index < users.length; index++) {
+        UserTileModel userT = UserTileModel(
+            recipientId: users[index].id,
+            lastMessage: lastMessage[index],
+            lastMsgTime: lastTime[index],
+            name: users[index].name,
+            img: users[index].image);
 
-    int hoursDifference = difference.inHours;
-    int daysDifference = difference.inDays;
-    int minuteDifference = difference.inMinutes;
-
-    if (minuteDifference < 60) {
-      timeis = ' $minuteDifference min ago';
-    } else if (hoursDifference < 24) {
-      timeis = '$hoursDifference hr ago';
-    } else if (daysDifference < 2) {
-      timeis = '$daysDifference day ago';
-    } else {
-      timeis = "${givenTime.day}/${givenTime.month}/${givenTime.year}";
+        usersTiles.add(userT);
+      }
     }
-
-    lastTime.add(timeis);
+    usersTiles.sort((a, b) {
+      return b.lastMsgTime!.compareTo(a.lastMsgTime!);
+    });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -159,51 +154,78 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           if (state is UserChatLoadedState) {
-           
-            return LiquidPullToRefresh(
-              onRefresh: () async {
-                BlocProvider.of<UserChatCubit>(context).userChats();
-                await setLastMessage();
-              },
-              height: 50,
-              child: ListView.builder(
-                itemCount: state.users.length,
-                itemBuilder: (context, index) {
-                  isUserOnline = onlineUsersList
-                      .any((user) => user['userId'] == state.users[index].id);
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: InkWell(
-                      onTap: () {
-                        String recipientId = state.users[index].id!;
-                        BlocProvider.of<GetMessageCubit>(context)
-                            .getMessages(recipientId: recipientId);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => ChatScreen(
-                                      isActive: isUserOnline,
-                                      recipientId: recipientId,
-                                      name: state.users[index].name!,
-                                    )));
-                      },
-                      child: UserChatTile(
-                        lastTime: lastTime.isNotEmpty ? lastTime[index] : "",
-                        index: index.toString(),
-                        username: state.users[index].name,
-                        lastMessage: (lastMessage.isNotEmpty)
-                            ? lastMessage[index]
-                            : "...",
-                        isUserChat: true,
-                        img: state.users[index].image,
-                        isOnline: isUserOnline,
-                      ),
-                    ),
-                  );
+            setUserList(state.users);
+            if (usersTiles.isNotEmpty) {
+              return LiquidPullToRefresh(
+                onRefresh: () async {
+                  await setLastMessage();
                 },
-              ),
-            );
+                height: 50,
+                child: ListView.builder(
+                  itemCount: state.users.length,
+                  itemBuilder: (context, index) {
+                    isUserOnline = onlineUsersList.any((user) =>
+                        user['userId'] == usersTiles[index].recipientId);
+
+                    String timeis = '';
+                    DateTime givenTime =
+                        DateTime.parse(usersTiles[index].lastMsgTime!);
+                    DateTime currentTime = DateTime.now();
+                    Duration difference = currentTime.difference(givenTime);
+
+                    int hoursDifference = difference.inHours;
+                    int daysDifference = difference.inDays;
+                    int minuteDifference = difference.inMinutes;
+                    if (minuteDifference < 60) {
+                      timeis = '$minuteDifference min ago';
+                    } else if (hoursDifference < 24) {
+                      timeis = '$hoursDifference hr ago';
+                    } else if (daysDifference < 2) {
+                      timeis = '$daysDifference day ago';
+                    } else {
+                      timeis =
+                          "${givenTime.day}/${givenTime.month}/${givenTime.year}";
+                    }
+                  
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: InkWell(
+                          onTap: () {
+                            String recipientId = usersTiles[index].recipientId!;
+                            BlocProvider.of<GetMessageCubit>(context)
+                                .getMessages(recipientId: recipientId);
+
+
+                             isUserOnline = onlineUsersList.any((user) =>
+                        user['userId'] == recipientId);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => ChatScreen(
+                                          setMessage: setLastMessage,
+                                          isActive: isUserOnline,
+                                          recipientId: recipientId,
+                                          name: usersTiles[index].name!,
+                                        )));
+                          },
+                          child: UserChatTile(
+                            lastTime: timeis,
+                            index: index.toString(),
+                            username: usersTiles[index].name,
+                            lastMessage: usersTiles[index].lastMessage,
+                            isUserChat: true,
+                            img: usersTiles[index].img,
+                            isOnline: isUserOnline,
+                          )),
+                    );
+                  },
+                ),
+              );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator.adaptive(),
+              );
+            }
           }
 
           return Container();
