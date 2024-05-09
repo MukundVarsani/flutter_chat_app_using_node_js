@@ -12,7 +12,7 @@ class Utils {
 
   static Future<void> saveToken(String token) async {
     await _initPreferences();
-    _preferences!.setString("Auth-Token", token);
+    await _preferences!.setString("Auth-Token", token);
   }
 
   static Future<String?> getToken() async {
@@ -22,7 +22,7 @@ class Utils {
 
   static Future<void> removeToken() async {
     await _initPreferences();
-    _preferences!.remove("Auth-Token");
+    await _preferences!.remove("Auth-Token");
   }
 
   static Future<void> saveUser(UserModel user) async {
@@ -43,7 +43,7 @@ class Utils {
 
   static Future<void> removeUser() async{
     await _initPreferences();
-    _preferences!.remove("User-Details");
+    await _preferences!.remove("User-Details");
   }
 
   static getUserId<String>()async{
