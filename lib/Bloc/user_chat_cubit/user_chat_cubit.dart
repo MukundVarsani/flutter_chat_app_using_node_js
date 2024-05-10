@@ -3,20 +3,24 @@ import 'package:chat_app_with_backend/Models/user_model.dart';
 import 'package:chat_app_with_backend/Services/user_service.dart';
 import 'package:chat_app_with_backend/Utils/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 class UserChatCubit extends Cubit<UserChatState> {
   static final UserService _service = UserService();
   String userId = '';
   List<dynamic>? members;
-  UserChatCubit() : super(UserChatInitialState()) {
+  UserChatCubit() : super(UserChatLoadingState()) {
     userChats();
   }
 
   Future<List<UserModel>?> userChats() async {
     UserModel user = await Utils.getUser();
+    if(user.toString().isNotEmptyAndNotNull){
+
     userId = user.id!;
+    }
     try {
-      emit(UserChatLoadingState());
+  
       List<UserModel>? recipientUsers = await _service.getUserChats(userId);
       if (recipientUsers != null) {
         emit(UserChatLoadedState(recipientUsers));

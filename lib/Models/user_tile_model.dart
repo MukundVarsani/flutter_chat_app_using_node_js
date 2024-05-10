@@ -1,9 +1,9 @@
 class UserTileModel {
-  final String? name;
-  final String? lastMessage;
-  final String? lastMsgTime;
-  final String? img;
-  final String? recipientId;
+   String? name;
+   String? lastMessage;
+   String? lastMsgTime;
+   String? img;
+   String? recipientId;
 
   UserTileModel({required this.recipientId, 
       required this.name,

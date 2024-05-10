@@ -42,13 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return SafeArea(
       child: Scaffold(
           backgroundColor: const Color(0xff030304),
-          appBar: AppBar(
-            backgroundColor: const Color(0xff030304),
-            leading: const BackButton(
-              style: ButtonStyle(iconSize: MaterialStatePropertyAll(30)),
-              color: Colors.white,
-            ),
-          ),
+         
           body: SingleChildScrollView(
             controller: _scrollController,
             child: Padding(
@@ -72,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                         color: Colors.white.withOpacity(0.7), fontSize: 20),
                   ),
-                  const HeightBox(300),
+                  const HeightBox(260),
                   Form(
                       key: _formKey,
                       child: Column(

@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:chat_app_with_backend/Bloc/Get_user_message/get_message_cubit.dart';
 import 'package:chat_app_with_backend/Bloc/user_chat_cubit/user_chat_cubit.dart';
@@ -44,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     addNewUser();
     super.initState();
     setLastMessage();
+    setLastMessageDetails();
   }
 
   addNewUser() async {
@@ -66,6 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
         (route) => false);
   }
 
+void setLastMessageDetails(){
+  Socket.socket.on('handleUpdatedLastMessage', (data) {
+    setLastMessage();
+  } );
+}
   @override
   void dispose() {
     _chatCubit.close();
@@ -176,7 +181,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     int hoursDifference = difference.inHours;
                     int daysDifference = difference.inDays;
                     int minuteDifference = difference.inMinutes;
-                    if (minuteDifference < 60) {
+                    int secondDifference = difference.inSeconds;
+                    if (secondDifference < 60) {
+                      timeis = 'Now ';
+                    }
+                    else if (minuteDifference < 60) {
                       timeis = '$minuteDifference min ago';
                     } else if (hoursDifference < 24) {
                       timeis = '$hoursDifference hr ago';
@@ -186,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       timeis =
                           "${givenTime.day}/${givenTime.month}/${givenTime.year}";
                     }
-                  
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: InkWell(
@@ -195,9 +204,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             BlocProvider.of<GetMessageCubit>(context)
                                 .getMessages(recipientId: recipientId);
 
-
-                             isUserOnline = onlineUsersList.any((user) =>
-                        user['userId'] == recipientId);
+                            isUserOnline = onlineUsersList
+                                .any((user) => user['userId'] == recipientId);
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

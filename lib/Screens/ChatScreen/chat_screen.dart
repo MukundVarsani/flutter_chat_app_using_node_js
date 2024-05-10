@@ -81,6 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
 
       Socket.socket.emit('sendMessageEvent', data);
+      Socket.socket.emit('sendLastMessageEvent' ,"updateUserDetail");
     }
   }
 
@@ -121,7 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Vx.log(widget.isActive);
+  
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
