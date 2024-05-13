@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 
 class UserChatTile extends StatelessWidget {
   const UserChatTile({
@@ -31,30 +33,47 @@ class UserChatTile extends StatelessWidget {
         children: [
           Stack(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: (img != null) ? 
-                Image.memory(base64Decode(img!), height: 60, width: 60,fit: BoxFit.cover,)
-                
-                :Image.network(
-                  height: 60,
-                  width: 60,
-                  fit: BoxFit.cover,
-                  "https://img.freepik.com/free-photo/freedom-concept-with-hiker-mountain_23-2148107064.jpg",
+              AnimatedContainer(
+               duration:const  Duration(milliseconds: 300),
+               decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: [
+                BoxShadow(
+                  color: isOnline
+                      ? const Color.fromARGB(255, 30, 183, 91)
+                      : Colors.transparent,
+                  blurRadius: 8,
+                  spreadRadius: 4,
+                ),
+              ],
+            ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: (img != null) ? 
+                  Image.memory(base64Decode(img!), height: 60, width: 60,fit: BoxFit.cover,)
+                  
+                  :Image.network(
+
+                    height: 60,
+                    width: 60,
+                    fit: BoxFit.cover,
+                    "https://img.freepik.com/free-photo/freedom-concept-with-hiker-mountain_23-2148107064.jpg",
+                  ),
                 ),
               ),
-              Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: isOnline
-                            ? const Color.fromARGB(255, 30, 183, 91)
-                            : Colors.grey),
-                    height: 15,
-                    width: 15,
-                  ))
+              // Positioned(
+              //     right: 0,
+              //     bottom: 0,
+              //     child: AnimatedContainer(
+              //        duration:const  Duration(milliseconds: 300),
+              //       decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(50),
+              //           color: isOnline
+              //               ? const Color.fromARGB(255, 30, 183, 91)
+              //               : Colors.grey),
+              //       height: 15,
+              //       width: 15,
+              //     ))
             ],
           ),
           const SizedBox(width: 20),
@@ -80,10 +99,11 @@ class UserChatTile extends StatelessWidget {
                       ),
                       Text(
                         username ?? "User name",
-                        style: const TextStyle(
-                            fontSize: 15,
+                        style:  GoogleFonts.ubuntu(
+                        textStyle: const TextStyle(fontSize: 15,
                             color: Colors.purple,
                             fontWeight: FontWeight.w600),
+                        ),
                       ),
                       Text(lastMessage ?? "Start Conversation",
                           style: TextStyle(

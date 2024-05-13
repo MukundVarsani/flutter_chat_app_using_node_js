@@ -18,11 +18,13 @@ class ChatScreen extends StatefulWidget {
     required this.name,
     this.isActive,
     required this.setMessage,
+  
   });
   final bool? isActive;
   final String recipientId;
   final String name;
   final VoidCallback setMessage;
+
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
@@ -41,7 +43,6 @@ class _ChatScreenState extends State<ChatScreen> {
     getId();
     fetchMessage();
     getMessageFromSocket();
-
     super.initState();
   }
 
@@ -65,23 +66,24 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void sendMessage(String text) {
     widget.setMessage();
-    if (text.isNotEmpty) {
-      Map data = {
-        "message": text,
-        "senderId": userId,
-        "recipientId": widget.recipientId
-      };
 
-      TextMessages txt = TextMessages(text: text, senderId: userId);
+    Map data = {
+      "message": text,
+      "senderId": userId,
+      "recipientId": widget.recipientId
+    };
 
-      if (mounted) {
-        messages.add(txt);
-        setState(() {});
-        scrollToLastItem();
-      }
+    TextMessages txt = TextMessages(text: text, senderId: userId);
 
-      Socket.socket.emit('sendMessageEvent', data);
+    if (mounted) {
+      messages.add(txt);
+      setState(() {});
+      scrollToLastItem();
     }
+
+    Socket.socket.emit('sendMessageEvent', data);
+
+    Socket.socket.emit('sendLastMessageEvent', data);
   }
 
   void scrollToLastItem() {
@@ -121,7 +123,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Vx.log(widget.isActive);
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(

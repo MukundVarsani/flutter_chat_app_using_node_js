@@ -1,5 +1,5 @@
 import 'package:chat_app_with_backend/Screens/AuthScreen/login_screen.dart';
-import 'package:chat_app_with_backend/Screens/HomeScreen/HomeScreen.dart';
+import 'package:chat_app_with_backend/Screens/HomeScreen/home_screen.dart';
 import 'package:chat_app_with_backend/Screens/SearchScreen/search_screen.dart';
 import 'package:chat_app_with_backend/Screens/Setting_screen.dart';
 import 'package:chat_app_with_backend/Screens/User%20Profile/user_profile.dart';

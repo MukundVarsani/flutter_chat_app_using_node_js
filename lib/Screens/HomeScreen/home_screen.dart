@@ -31,19 +31,25 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final UserChatCubit _chatCubit = UserChatCubit();
   final MessageService _messageService = MessageService();
+  late final String userId;
 
   List<dynamic> onlineUsersList = [];
   bool isUserOnline = false;
   List<String> lastMessage = [];
   List<String> lastTime = [];
-
   List<UserTileModel> usersTiles = [];
 
   @override
   void initState() {
     addNewUser();
-    super.initState();
     setLastMessage();
+    lastMesasgeUpdate();
+    getUserId();
+    super.initState();
+  }
+
+  Future getUserId() async {
+    userId = await Utils.getUserId();
   }
 
   addNewUser() async {
@@ -66,6 +72,15 @@ class _HomeScreenState extends State<HomeScreen> {
         (route) => false);
   }
 
+  void lastMesasgeUpdate() async {
+    Socket.socket.on('handleUpdatedLastMessage', (data) async {
+      Vx.log(data['recipientId'] == userId);
+      if (data['recipientId'] == userId) {
+        await setLastMessage();
+      }
+    });
+  }
+
   @override
   void dispose() {
     _chatCubit.close();
@@ -73,32 +88,35 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> setLastMessage() async {
+    lastMessage.clear();
+    lastTime.clear();
     List<UserModel>? recipientUsers =
         await BlocProvider.of<UserChatCubit>(context).userChats();
 
     if (recipientUsers != null) {
       lastMessage = [];
-      lastTime = [];
 
       for (UserModel recipientUser in recipientUsers) {
         List<MessageModel>? messages =
             await _messageService.fetchMessages(recipientId: recipientUser.id!);
+
         if (messages != null && messages.isNotEmpty) {
           lastTime.add(messages.last.createdAt.toString());
           lastMessage.add(messages.last.text!.toString());
         } else {
-          lastMessage.add("Start");
+          lastMessage = [];
+          lastTime = [];
         }
       }
-
-      setState(() {});
     }
+    setState(() {});
   }
 
   setUserList(List<UserModel> users) {
-    usersTiles = [];
+    usersTiles.clear();
 
-    if (lastMessage.length == users.length) {
+    // if (lastMessage.length == users.length) {
+    if (lastMessage.isNotEmpty) {
       for (int index = 0; index < users.length; index++) {
         UserTileModel userT = UserTileModel(
             recipientId: users[index].id,
@@ -155,6 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (state is UserChatLoadedState) {
             setUserList(state.users);
+
             if (usersTiles.isNotEmpty) {
               return LiquidPullToRefresh(
                 onRefresh: () async {
@@ -176,7 +195,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     int hoursDifference = difference.inHours;
                     int daysDifference = difference.inDays;
                     int minuteDifference = difference.inMinutes;
-                    if (minuteDifference < 60) {
+                    int secondDifference = difference.inSeconds;
+
+                    if (secondDifference < 60) {
+                      timeis = 'Now';
+                    } else if (minuteDifference < 60) {
                       timeis = '$minuteDifference min ago';
                     } else if (hoursDifference < 24) {
                       timeis = '$hoursDifference hr ago';
@@ -186,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       timeis =
                           "${givenTime.day}/${givenTime.month}/${givenTime.year}";
                     }
-                  
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: InkWell(
@@ -195,9 +218,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             BlocProvider.of<GetMessageCubit>(context)
                                 .getMessages(recipientId: recipientId);
 
-
-                             isUserOnline = onlineUsersList.any((user) =>
-                        user['userId'] == recipientId);
+                            isUserOnline = onlineUsersList
+                                .any((user) => user['userId'] == recipientId);
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

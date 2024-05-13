@@ -8,7 +8,7 @@ class UserChatCubit extends Cubit<UserChatState> {
   static final UserService _service = UserService();
   String userId = '';
   List<dynamic>? members;
-  UserChatCubit() : super(UserChatInitialState()) {
+  UserChatCubit() : super(UserChatLoadingState()) {
     userChats();
   }
 
@@ -16,7 +16,6 @@ class UserChatCubit extends Cubit<UserChatState> {
     UserModel user = await Utils.getUser();
     userId = user.id!;
     try {
-      emit(UserChatLoadingState());
       List<UserModel>? recipientUsers = await _service.getUserChats(userId);
       if (recipientUsers != null) {
         emit(UserChatLoadedState(recipientUsers));
