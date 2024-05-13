@@ -74,9 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void lastMesasgeUpdate() async {
     Socket.socket.on('handleUpdatedLastMessage', (data) async {
-      
-
-      Vx.log(data['recipientId'] == userId);
+      // Vx.log(data['recipientId'] == userId);
       if (data['recipientId'] == userId) {
         await setLastMessage();
       }
@@ -96,12 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
         await BlocProvider.of<UserChatCubit>(context).userChats();
 
     if (recipientUsers != null) {
-      lastMessage = [];
-
+     
       for (UserModel recipientUser in recipientUsers) {
         List<MessageModel>? messages =
             await _messageService.fetchMessages(recipientId: recipientUser.id!);
-
         if (messages != null && messages.isNotEmpty) {
           lastTime.add(messages.last.createdAt.toString());
           lastMessage.add(messages.last.text!.toString());

@@ -51,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
       Map<String, dynamic> data = res;
       if (data.isNotEmpty && data['senderId'] == widget.recipientId) {
         if (mounted) {
-          widget.setMessage();
+        
           messages.add(TextMessages.fromJson(data));
           setState(() {});
           scrollToLastItem();
@@ -123,7 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Vx.log(widget.isActive);
+  
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
