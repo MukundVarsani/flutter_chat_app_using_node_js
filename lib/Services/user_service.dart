@@ -44,7 +44,7 @@ class UserService extends ApiClient {
       }
       return null;
     } catch (e) {
-      Vx.log("getUserChats");
+      Vx.log("getUserChats $e");
       Vx.log(e.toString());
       rethrow;
     }

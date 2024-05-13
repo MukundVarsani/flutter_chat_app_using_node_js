@@ -61,19 +61,7 @@ class UserChatTile extends StatelessWidget {
                   ),
                 ),
               ),
-              // Positioned(
-              //     right: 0,
-              //     bottom: 0,
-              //     child: AnimatedContainer(
-              //        duration:const  Duration(milliseconds: 300),
-              //       decoration: BoxDecoration(
-              //           borderRadius: BorderRadius.circular(50),
-              //           color: isOnline
-              //               ? const Color.fromARGB(255, 30, 183, 91)
-              //               : Colors.grey),
-              //       height: 15,
-              //       width: 15,
-              //     ))
+              
             ],
           ),
           const SizedBox(width: 20),

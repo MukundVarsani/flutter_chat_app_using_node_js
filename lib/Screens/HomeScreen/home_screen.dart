@@ -74,6 +74,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void lastMesasgeUpdate() async {
     Socket.socket.on('handleUpdatedLastMessage', (data) async {
+      
+
       Vx.log(data['recipientId'] == userId);
       if (data['recipientId'] == userId) {
         await setLastMessage();
