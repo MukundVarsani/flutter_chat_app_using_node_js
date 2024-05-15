@@ -4,6 +4,7 @@ import 'package:chat_app_with_backend/Bloc/Get_user_message/get_message_cubit.da
 import 'package:chat_app_with_backend/Bloc/Get_user_message/get_message_state.dart';
 import 'package:chat_app_with_backend/Models/message_model.dart';
 import 'package:chat_app_with_backend/Models/text_messages.dart';
+import 'package:chat_app_with_backend/Models/user_model.dart';
 import 'package:chat_app_with_backend/Socket%20connection/socket.dart';
 import 'package:chat_app_with_backend/Utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,6 @@ class ChatScreen extends StatefulWidget {
     required this.name,
     this.isActive,
     required this.setMessage,
-  
   });
   final bool? isActive;
   final String recipientId;
@@ -37,11 +37,13 @@ class _ChatScreenState extends State<ChatScreen> {
   List<TextMessages> messages = [];
   bool hasType = false;
   String userId = "";
+  UserModel? currentUser;
 
   @override
   void initState() {
     getId();
     fetchMessage();
+
     getMessageFromSocket();
     super.initState();
   }
@@ -51,7 +53,6 @@ class _ChatScreenState extends State<ChatScreen> {
       Map<String, dynamic> data = res;
       if (data.isNotEmpty && data['senderId'] == widget.recipientId) {
         if (mounted) {
-        
           messages.add(TextMessages.fromJson(data));
           setState(() {});
           scrollToLastItem();
@@ -61,13 +62,17 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void getId() async {
+    currentUser = await Utils.getUser();
     userId = await Utils.getUserId();
   }
 
   void sendMessage(String text) {
     widget.setMessage();
 
+
+    
     Map data = {
+      "name" : currentUser?.name,
       "message": text,
       "senderId": userId,
       "recipientId": widget.recipientId
@@ -123,7 +128,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-  
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(

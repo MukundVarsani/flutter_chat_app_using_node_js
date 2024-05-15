@@ -85,6 +85,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   )));
                     },
                     child: UserChatTile(
+                      isRead: false,
                       lastTime: "Sep 3",
                       index: index.toString(),
                       isUserChat: false,

@@ -5,6 +5,7 @@ class MessageModel {
   String? text;
   String? createdAt;
   String? updatedAt;
+  bool? isRead;
   int? iV;
 
   MessageModel(
@@ -14,6 +15,7 @@ class MessageModel {
       this.text,
       this.createdAt,
       this.updatedAt,
+      this.isRead,
       this.iV});
 
   MessageModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class MessageModel {
     text = json['text'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
+    isRead = json['isRead'];
     iV = json['__v'];
   }
 
@@ -34,7 +37,14 @@ class MessageModel {
     data['text'] = text;
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
+    data['isRead'] = isRead;
     data['__v'] = iV;
     return data;
+  }
+
+
+
+  void setIsRead(bool newIsRead) {
+    isRead = newIsRead;
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:chat_app_with_backend/Bloc/Get_user_message/get_message_cubit.dart';
 import 'package:chat_app_with_backend/Bloc/user_chat_cubit/user_chat_cubit.dart';
 import 'package:chat_app_with_backend/Bloc/user_chat_cubit/user_chat_state.dart';
@@ -9,6 +7,7 @@ import 'package:chat_app_with_backend/Models/user_tile_model.dart';
 import 'package:chat_app_with_backend/Screens/AuthScreen/login_screen.dart';
 import 'package:chat_app_with_backend/Screens/ChatScreen/chat_screen.dart';
 import 'package:chat_app_with_backend/Screens/HomeScreen/Common/user_chat_tile.dart';
+import 'package:chat_app_with_backend/Services/firebase_notification.dart';
 import 'package:chat_app_with_backend/Services/message_service.dart';
 import 'package:chat_app_with_backend/Socket%20connection/socket.dart';
 import 'package:chat_app_with_backend/Utils/utils.dart';
@@ -16,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:velocity_x/velocity_x.dart';
+import '../../main.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -31,6 +31,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final UserChatCubit _chatCubit = UserChatCubit();
   final MessageService _messageService = MessageService();
+  final MessageModel _messageModel = MessageModel();
   late final String userId;
 
   List<dynamic> onlineUsersList = [];
@@ -39,12 +40,15 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> lastTime = [];
   List<UserTileModel> usersTiles = [];
 
+  bool testIsRead = false;
+
   @override
   void initState() {
     addNewUser();
     setLastMessage();
     lastMesasgeUpdate();
     getUserId();
+    LocalNotification.initialize(flutterLocalNotificationsPlugin);
     super.initState();
   }
 
@@ -76,6 +80,12 @@ class _HomeScreenState extends State<HomeScreen> {
     Socket.socket.on('handleUpdatedLastMessage', (data) async {
       // Vx.log(data['recipientId'] == userId);
       if (data['recipientId'] == userId) {
+        Vx.log("Notification send to ${data['senderId']}");
+
+        LocalNotification.showBigTextNotification(
+            title: " ${data['name']} ",
+            body: data['message'],
+            fln: flutterLocalNotificationsPlugin);
         await setLastMessage();
       }
     });
@@ -94,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
         await BlocProvider.of<UserChatCubit>(context).userChats();
 
     if (recipientUsers != null) {
-     
       for (UserModel recipientUser in recipientUsers) {
         List<MessageModel>? messages =
             await _messageService.fetchMessages(recipientId: recipientUser.id!);
@@ -113,10 +122,11 @@ class _HomeScreenState extends State<HomeScreen> {
   setUserList(List<UserModel> users) {
     usersTiles.clear();
 
-    // if (lastMessage.length == users.length) {
-    if (lastMessage.isNotEmpty) {
+    if (lastMessage.length == users.length) {
+    // if (lastMessage.isNotEmpty) {
       for (int index = 0; index < users.length; index++) {
         UserTileModel userT = UserTileModel(
+            isRead: true,
             recipientId: users[index].id,
             lastMessage: lastMessage[index],
             lastMsgTime: lastTime[index],
@@ -229,6 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         )));
                           },
                           child: UserChatTile(
+                            isRead: usersTiles[index].isRead!,
                             lastTime: timeis,
                             index: index.toString(),
                             username: usersTiles[index].name,
@@ -252,6 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         listener: (BuildContext context, UserChatState state) {},
       ),
+  
     );
   }
 }

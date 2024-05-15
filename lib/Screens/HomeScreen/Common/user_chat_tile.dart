@@ -11,7 +11,7 @@ class UserChatTile extends StatelessWidget {
     this.isOnline = false,
     required this.index,
     required this.lastTime,
-    this.img,
+    this.img, required this.isRead,
   });
   final bool isUserChat;
   final String? username;
@@ -20,10 +20,12 @@ class UserChatTile extends StatelessWidget {
   final String index;
   final String lastTime;
   final String? img;
+  final bool isRead;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: isRead ? null: Colors.white.withOpacity(0.1),
       margin: const EdgeInsets.only(bottom: 20),
       height: 80,
       child: Row(
@@ -60,7 +62,10 @@ class UserChatTile extends StatelessWidget {
                           loadingBuilder: (BuildContext context, Widget child,
                               ImageChunkEvent? loadingProgress) {
                             if (loadingProgress == null) return child;
-                            return Center(child: Container( color: Colors.black,));
+                            return Center(
+                                child: Container(
+                              color: Colors.black,
+                            ));
                           },
                           "https://img.freepik.com/free-photo/freedom-concept-with-hiker-mountain_23-2148107064.jpg",
                         ),
