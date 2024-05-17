@@ -16,4 +16,8 @@ class ApiEndPoints {
 //  ========================================message========================
   static const String createMesssage = 'messages';
   static const String getMessage = 'messages/';
+
+  //=========================================== Notification=============================
+
+  static const String sendNotification = '/send-notification';
 }

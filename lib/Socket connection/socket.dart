@@ -5,7 +5,7 @@ import 'package:socket_io_client/socket_io_client.dart' as iO;
 
 class Socket {
   static final iO.Socket socket = iO.io(
-      "http://192.168.1.5:4000/",
+      "https://chat-app-backend-1-qkg0.onrender.com/",
       iO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()

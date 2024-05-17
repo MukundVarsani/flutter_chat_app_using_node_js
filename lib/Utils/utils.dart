@@ -46,8 +46,8 @@ class Utils {
     await _preferences!.remove("User-Details");
   }
 
-  static getUserId<String>()async{
+  static  Future<String> getUserId()async{
       UserModel user = await getUser();
-      return user.id;
+      return user.id ?? "NULL";
   }
 }

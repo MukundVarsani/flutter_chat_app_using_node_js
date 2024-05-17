@@ -19,11 +19,13 @@ class ChatScreen extends StatefulWidget {
     required this.name,
     this.isActive,
     required this.setMessage,
+    this.sendNotification,
   });
   final bool? isActive;
   final String recipientId;
   final String name;
   final VoidCallback setMessage;
+  final void Function(String text, String recipientId)? sendNotification;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -38,12 +40,12 @@ class _ChatScreenState extends State<ChatScreen> {
   bool hasType = false;
   String userId = "";
   UserModel? currentUser;
+  bool isAppClosed = false;
 
   @override
   void initState() {
     getId();
     fetchMessage();
-
     getMessageFromSocket();
     super.initState();
   }
@@ -67,12 +69,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendMessage(String text) {
+
+    widget.sendNotification!(text, widget.recipientId);
+
     widget.setMessage();
-
-
-    
     Map data = {
-      "name" : currentUser?.name,
+      "name": currentUser?.name,
       "message": text,
       "senderId": userId,
       "recipientId": widget.recipientId
@@ -128,6 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(

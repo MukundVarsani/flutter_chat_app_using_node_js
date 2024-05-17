@@ -4,6 +4,11 @@
         android:label="MyChat"
         android:name="${applicationName}"
         android:icon="@mipmap/appstore">
+
+        <meta-data
+              android:name="com.google.firebase.messaging.default_notification_icon"
+              android:resource="@drawable/mychat"
+              />
         <activity
             android:name=".MainActivity"
             android:exported="true"

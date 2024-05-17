@@ -1,5 +1,5 @@
 class ApiConstant {
   ApiConstant._();
 
-  static const String mainUrl = 'http://192.168.1.5:4000/api/';
+  static const String mainUrl = 'https://chat-app-backend-1-qkg0.onrender.com/api/';
 }

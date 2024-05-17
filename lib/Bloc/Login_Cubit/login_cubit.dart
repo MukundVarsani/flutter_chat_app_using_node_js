@@ -3,6 +3,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat_app_with_backend/Models/user_model.dart';
 import 'package:chat_app_with_backend/Services/auth_service.dart';
+import 'package:chat_app_with_backend/Services/firebase_notification.dart';
 import 'package:chat_app_with_backend/Utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -21,14 +22,12 @@ class LoginCubit extends Cubit<LoginState> {
     emit(LoginLoadingState());
 
     try {
+      String fcmToken = await PushNotification().getFCMToken();
+
       UserModel? user = await _authService.loginUser(
-          email: email, password: password, context: context);
+          email: email, password: password, context: context,fcmToken: fcmToken);
 
       if (user != null) {
-
-
-
-
         Utils.saveToken(user.token!);
         Utils.saveUser(user);
         emit(LoginSuccessState(user.name!));

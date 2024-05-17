@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:velocity_x/velocity_x.dart';
-import '../../main.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -31,7 +30,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final UserChatCubit _chatCubit = UserChatCubit();
   final MessageService _messageService = MessageService();
-  final MessageModel _messageModel = MessageModel();
   late final String userId;
 
   List<dynamic> onlineUsersList = [];
@@ -41,14 +39,17 @@ class _HomeScreenState extends State<HomeScreen> {
   List<UserTileModel> usersTiles = [];
 
   bool testIsRead = false;
+  bool isRecipientOnline = false;
+
+  PushNotification pushNotification = PushNotification();
 
   @override
   void initState() {
     addNewUser();
     setLastMessage();
     lastMesasgeUpdate();
+    pushNotification.initialize();
     getUserId();
-    LocalNotification.initialize(flutterLocalNotificationsPlugin);
     super.initState();
   }
 
@@ -67,6 +68,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> sendNotification(
+      {required String text, required String recipientId}) async {
+    isRecipientOnline = onlineUsersList.any((user) => user['userId'] == recipientId);
+
+    if (!isRecipientOnline) {
+      // Vx.log("sent Notificaiton");
+      PushNotification().sendPushNotification(text, recipientId);
+    }
+
+  
+  }
+
   void _logoutUser() {
     Socket.socket.disconnect();
     Socket.socket.dispose();
@@ -78,14 +91,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void lastMesasgeUpdate() async {
     Socket.socket.on('handleUpdatedLastMessage', (data) async {
-      // Vx.log(data['recipientId'] == userId);
       if (data['recipientId'] == userId) {
-        Vx.log("Notification send to ${data['senderId']}");
+        // Vx.log("Notification send to ${data['senderId']}");
 
-        LocalNotification.showBigTextNotification(
-            title: " ${data['name']} ",
-            body: data['message'],
-            fln: flutterLocalNotificationsPlugin);
+        pushNotification.sendLocalNotification(
+          title: "${data['name']} ",
+          body: data['message'],
+        );
         await setLastMessage();
       }
     });
@@ -93,6 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver;
     _chatCubit.close();
     super.dispose();
   }
@@ -123,7 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
     usersTiles.clear();
 
     if (lastMessage.length == users.length) {
-    // if (lastMessage.isNotEmpty) {
       for (int index = 0; index < users.length; index++) {
         UserTileModel userT = UserTileModel(
             isRead: true,
@@ -232,6 +244,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (_) => ChatScreen(
+                                          sendNotification: (q, r) {
+                                            sendNotification(
+                                                text: q, recipientId: r);
+                                          },
                                           setMessage: setLastMessage,
                                           isActive: isUserOnline,
                                           recipientId: recipientId,
@@ -263,7 +279,6 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         listener: (BuildContext context, UserChatState state) {},
       ),
-  
     );
   }
 }

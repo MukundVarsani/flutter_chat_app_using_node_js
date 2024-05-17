@@ -11,7 +11,8 @@ class UserChatTile extends StatelessWidget {
     this.isOnline = false,
     required this.index,
     required this.lastTime,
-    this.img, required this.isRead,
+    this.img,
+    required this.isRead,
   });
   final bool isUserChat;
   final String? username;
@@ -25,12 +26,12 @@ class UserChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: isRead ? null: Colors.white.withOpacity(0.1),
+      color: isRead ? null : Colors.white.withOpacity(0.1),
       margin: const EdgeInsets.only(bottom: 20),
       height: 80,
       child: Row(
         children: [
-          Stack(
+          Row(
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
@@ -77,13 +78,10 @@ class UserChatTile extends StatelessWidget {
           Expanded(
             child: Container(
               padding: const EdgeInsets.only(bottom: 10),
-              decoration: isUserChat
-                  ? BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                              width: 0.3,
-                              color: Colors.white.withOpacity(0.3))))
-                  : null,
+              decoration: BoxDecoration(
+                  border: Border(
+                      bottom: BorderSide(
+                          width: 0.3, color: Colors.white.withOpacity(0.3)))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

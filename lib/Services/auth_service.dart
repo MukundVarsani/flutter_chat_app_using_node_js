@@ -44,10 +44,12 @@ class AuthService extends ApiClient {
   Future<UserModel?> loginUser(
       {required String email,
       required String password,
+      String? fcmToken,
       required BuildContext context}) async {
     Map<String, dynamic> body = {
       'email': email,
       'password': password,
+      "fcm_token" : fcmToken
     };
     try {
       Response response =
